@@ -6,57 +6,105 @@
     <title>Nikita Photography</title>
     <style>
         :root { --accent: #0088cc; }
-        body { font-family: sans-serif; margin: 0; background: #000; color: #fff; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; background: #000; color: #fff; overflow-x: hidden;
+        }
         
-        /* Главный экран */
-        .hero { 
-            min-height: 100vh; display: flex; flex-direction: column; 
-            justify-content: center; align-items: center; 
-            /* Используем абсолютный путь для фона */
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/background.jpg') center/cover fixed; 
-            text-align: center; 
+        /* Фон и заголовок */
+        .hero {
+            height: 100vh; display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('background.jpg') center/cover fixed;
+            text-align: center;
         }
 
-        .folders { display: flex; gap: 20px; width: 90%; max-width: 900px; margin-top: 40px; }
-        .folder { 
-            flex: 1; padding: 30px 10px; border: 1px solid rgba(255,255,255,0.2); 
-            border-radius: 15px; background: rgba(255,255,255,0.1); 
-            backdrop-filter: blur(10px); cursor: pointer; transition: 0.3s; 
-        }
-        .folder:hover { transform: translateY(-5px); border-color: var(--accent); }
+        h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; margin: 0; }
+        .question { font-size: 1.5rem; margin-top: 30px; font-weight: 300; color: #ccc; }
 
-        /* Галерея */
-        .gallery-section { padding: 50px 5%; display: none; background: #000; min-height: 100vh; }
+        /* Сетка папок */
+        .folders {
+            display: flex; gap: 20px; width: 90%; max-width: 900px; margin-top: 40px;
+        }
+        .folder {
+            flex: 1; padding: 30px 10px; border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 15px; background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px); cursor: pointer; transition: 0.3s;
+            text-align: center;
+        }
+        .folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }
+        .folder-icon { font-size: 2rem; margin-bottom: 10px; }
+
+        /* Секции галерей */
+        .gallery-section { padding: 50px 5%; display: none; min-height: 100vh; }
         .gallery-section.active { display: block; }
-        .gallery-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-            gap: 15px; margin-top: 20px;
+        .gallery-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px; margin-top: 30px;
         }
-        .gallery-grid img { width: 100%; border-radius: 8px; cursor: pointer; display: block; transition: 0.3s; }
-        .gallery-grid img:hover { transform: scale(1.02); }
+        .gallery-grid img {
+            width: 100%; aspect-ratio: 3/2; object-fit: cover;
+            border-radius: 8px; transition: 0.3s; cursor: pointer;
+        }
+        .gallery-grid img:hover { transform: scale(1.03); filter: brightness(1.1); }
+        
+        .back-btn {
+            background: none; border: 1px solid #444; color: #fff;
+            padding: 10px 20px; border-radius: 50px; cursor: pointer; margin-bottom: 20px;
+        }
 
-        /* Просмотр */
-        #lightbox { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.95); display: none; justify-content: center; 
-            align-items: center; z-index: 1000; 
+        /* Полноэкранный просмотр (Lightbox) */
+        #lightbox {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 1000;
         }
         #lightbox.active { display: flex; }
-        #lightbox img { max-width: 95%; max-height: 95%; object-fit: contain; }
+        #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; }
         
-        .back-btn { background: var(--accent); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; }
-        .tg-float { position: fixed; right: 20px; bottom: 20px; width: 50px; height: 50px; background: var(--accent); border-radius: 50%; display: flex; justify-content: center; align-items: center; text-decoration: none; }
+        .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; }
+        
+        /* Лента предпросмотра снизу */
+        .lb-thumbs {
+            display: flex; gap: 10px; margin-top: 20px; 
+            max-width: 90%; overflow-x: auto; padding: 10px;
+        }
+        .lb-thumbs img {
+            height: 60px; width: 90px; object-fit: cover; 
+            border-radius: 4px; cursor: pointer; opacity: 0.5; transition: 0.3s;
+        }
+        .lb-thumbs img.active { opacity: 1; border: 2px solid var(--accent); }
+
+        /* Кнопка ТГ */
+        .tg-float {
+            position: fixed; right: 20px; bottom: 20px;
+            width: 50px; height: 50px; background: var(--accent);
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 100;
+        }
+        .tg-float svg { width: 25px; fill: white; }
+
+        @media (max-width: 600px) { .folders { flex-direction: column; } }
     </style>
 </head>
 <body>
 
     <div id="main" class="hero">
         <h1>NIKITA PHOTOGRAPHY</h1>
-        <p>Что я фотографирую?</p>
+        <div class="question">Что я фотографирую?</div>
         <div class="folders">
-            <div class="folder" onclick="showGallery('landscape')">🏔️ Пейзаж</div>
-            <div class="folder" onclick="showGallery('animals')">🦆 Животные</div>
-            <div class="folder" onclick="showGallery('fest')">🎸 Фестивали</div>
+            <div class="folder" onclick="showGallery('landscape')">
+                <div class="folder-icon">🏔️</div>
+                <div class="folder-name">Пейзаж</div>
+            </div>
+            <div class="folder" onclick="showGallery('animals')">
+                <div class="folder-icon">🦆</div>
+                <div class="folder-name">Животные</div>
+            </div>
+            <div class="folder" onclick="showGallery('fest')">
+                <div class="folder-icon">🎸</div>
+                <div class="folder-name">Фестивали</div>
+            </div>
         </div>
     </div>
 
@@ -78,63 +126,76 @@
         <div class="gallery-grid" id="grid-f"></div>
     </div>
 
-    <div id="lightbox" onclick="this.classList.remove('active')">
-        <img id="lb-img" alt="Увеличить">
+    <div id="lightbox">
+        <span class="close-lb" onclick="closeLightbox()">&times;</span>
+        <img id="lightbox-img" src="">
+        <div class="lb-thumbs" id="lb-thumbs"></div>
     </div>
 
     <a href="https://t.me/nikitaphotography" class="tg-float" target="_blank">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
     </a>
 
     <script>
+        let currentPhotos = [];
+
         function createGrid(containerId, prefix, count) {
             const grid = document.getElementById(containerId);
-            if (!grid) return;
-
             for (let i = 1; i <= count; i++) {
+                const src = `photos/${i}${prefix}.jpg`;
                 const img = document.createElement('img');
-                
-                // Исправленный путь: абсолютный адрес от корня
-                const fileName = i + prefix + '.jpg';
-                img.src = '/photos/' + fileName; 
-                
-                img.onclick = (e) => {
-                    e.stopPropagation();
-                    document.getElementById('lb-img').src = img.src;
-                    document.getElementById('lightbox').classList.add('active');
-                };
-
-                // Отлавливаем ошибки загрузки
-                img.onerror = function() {
-                    console.error("Ошибка загрузки файла: " + this.src);
-                    // Если основной путь не сработал, пробуем запасной (без слэша)
-                    if (this.src.includes('nikitaphotography.ru//')) {
-                         this.src = 'photos/' + fileName;
-                    } else {
-                        this.style.display = 'none'; // Скрываем, если совсем не нашлось
-                    }
-                };
-
+                img.src = src;
+                img.onclick = () => openLightbox(src, prefix, count);
                 grid.appendChild(img);
             }
         }
 
-        // Запуск (убедись, что количество файлов совпадает)
         createGrid('grid-l', 'l', 10);
         createGrid('grid-a', 'a', 10);
         createGrid('grid-f', 'f', 10);
 
+        function openLightbox(src, prefix, count) {
+            const lb = document.getElementById('lightbox');
+            const lbImg = document.getElementById('lightbox-img');
+            const thumbs = document.getElementById('lb-thumbs');
+            
+            lbImg.src = src;
+            thumbs.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const tSrc = `photos/${i}${prefix}.jpg`;
+                const thumb = document.createElement('img');
+                thumb.src = tSrc;
+                if(tSrc === src) thumb.className = 'active';
+                thumb.onclick = (e) => {
+                    e.stopPropagation();
+                    openLightbox(tSrc, prefix, count);
+                };
+                thumbs.appendChild(thumb);
+            }
+            
+            lb.classList.add('active');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.remove('active');
+        }
+
+        // Закрытие по клику мимо фото
+        document.getElementById('lightbox').onclick = (e) => {
+            if(e.target.id === 'lightbox') closeLightbox();
+        };
+
         function showGallery(id) {
             document.getElementById('main').style.display = 'none';
-            document.querySelectorAll('.gallery-section').forEach(s => s.style.display = 'none');
-            const target = document.getElementById(id);
-            if(target) target.style.display = 'block';
+            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
         }
 
         function hideGallery() {
             document.getElementById('main').style.display = 'flex';
-            document.querySelectorAll('.gallery-section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
         }
     </script>
 </body>
