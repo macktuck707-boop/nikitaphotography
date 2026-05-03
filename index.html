@@ -11,7 +11,7 @@
             margin: 0; background: #000; color: #fff; overflow-x: hidden;
         }
         
-        /* Фон и заголовок */
+        /* Секция приветствия */
         .hero {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
@@ -22,7 +22,7 @@
         h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; margin: 0; }
         .question { font-size: 1.5rem; margin-top: 30px; font-weight: 300; color: #ccc; }
 
-        /* Сетка папок */
+        /* Сетка папок (категорий) */
         .folders {
             display: flex; gap: 20px; width: 90%; max-width: 900px; margin-top: 40px;
         }
@@ -35,7 +35,7 @@
         .folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }
         .folder-icon { font-size: 2rem; margin-bottom: 10px; }
 
-        /* Секции галерей */
+        /* Стили галереи */
         .gallery-section { padding: 50px 5%; display: none; min-height: 100vh; }
         .gallery-section.active { display: block; }
         .gallery-grid {
@@ -53,7 +53,7 @@
             padding: 10px 20px; border-radius: 50px; cursor: pointer; margin-bottom: 20px;
         }
 
-        /* Полноэкранный просмотр (Lightbox) */
+        /* Просмотр фото (Lightbox) */
         #lightbox {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); display: none; flex-direction: column;
@@ -61,10 +61,8 @@
         }
         #lightbox.active { display: flex; }
         #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; }
-        
         .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; }
         
-        /* Лента предпросмотра снизу */
         .lb-thumbs {
             display: flex; gap: 10px; margin-top: 20px; 
             max-width: 90%; overflow-x: auto; padding: 10px;
@@ -75,7 +73,7 @@
         }
         .lb-thumbs img.active { opacity: 1; border: 2px solid var(--accent); }
 
-        /* --- ПЛАВАЮЩИЕ КНОПКИ --- */
+        /* Плавающие кнопки соцсетей */
         .social-float-wrapper {
             position: fixed; right: 20px; bottom: 20px;
             display: flex; gap: 15px; z-index: 100;
@@ -85,15 +83,15 @@
             display: flex; justify-content: center; align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s;
             position: relative; text-decoration: none;
-            font-size: 22px; /* Размер для эмодзи */
+            font-size: 22px;
         }
-        .float-btn svg { width: 25px; fill: white; }
         .float-btn:hover { transform: translateY(-5px); }
 
         .tg-btn { background: var(--accent); }
         .lomo-btn { background: #eb212e; }
+        .fest-btn { background: #ff8c00; }
 
-        /* Всплывающая подсказка */
+        /* Подсказки при наведении */
         .float-btn::after {
             content: attr(data-tooltip);
             position: absolute; bottom: 65px; left: 50%;
@@ -102,7 +100,6 @@
             padding: 5px 12px; border-radius: 6px; font-size: 13px;
             white-space: nowrap; opacity: 0; visibility: hidden;
             transition: 0.3s; font-weight: 500;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
         .float-btn:hover::after { opacity: 1; visibility: visible; bottom: 60px; }
 
@@ -130,6 +127,7 @@
         </div>
     </div>
 
+    <!-- Секции для разных галерей -->
     <div id="landscape" class="gallery-section">
         <button class="back-btn" onclick="hideGallery()">← Назад</button>
         <h2>Пейзажи</h2>
@@ -148,24 +146,28 @@
         <div class="gallery-grid" id="grid-f"></div>
     </div>
 
+    <!-- Лайтбокс -->
     <div id="lightbox">
         <span class="close-lb" onclick="closeLightbox()">&times;</span>
         <img id="lightbox-img" src="">
         <div class="lb-thumbs" id="lb-thumbs"></div>
     </div>
 
+    <!-- Плавающие кнопки -->
     <div class="social-float-wrapper">
+        <a href="https://695f6b65c08df1-22980644.gallery.photo/" class="float-btn fest-btn" target="_blank" data-tooltip="Фестивали">
+            <span>🦊</span>
+        </a>
         <a href="https://www.lomography.com/homes/macktuck706" class="float-btn lomo-btn" target="_blank" data-tooltip="Плёночные работы">
             <span>🎞️</span>
         </a>
-
         <a href="https://t.me/nikitaphotography" class="float-btn tg-btn" target="_blank" data-tooltip="Telegram">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/></svg>
+            <span>🔹</span>
         </a>
     </div>
 
     <script>
-        // Твой JS код без изменений
+        // Функция для автоматического создания сетки фото
         function createGrid(containerId, prefix, count) {
             const grid = document.getElementById(containerId);
             for (let i = 1; i <= count; i++) {
@@ -177,6 +179,7 @@
             }
         }
 
+        // Вызываем создание сеток (укажи здесь правильное количество фото)
         createGrid('grid-l', 'l', 24);
         createGrid('grid-a', 'a', 11);
         createGrid('grid-f', 'f', 12);
@@ -199,13 +202,14 @@
         }
 
         function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
-        document.getElementById('lightbox').onclick = (e) => { if(e.target.id === 'lightbox') closeLightbox(); };
+        
         function showGallery(id) {
             document.getElementById('main').style.display = 'none';
             document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             window.scrollTo(0,0);
         }
+
         function hideGallery() {
             document.getElementById('main').style.display = 'flex';
             document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
