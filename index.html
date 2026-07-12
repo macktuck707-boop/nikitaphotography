@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <link rel="icon" type="image/jpg" href="favicon.jpg">
+<link rel="icon" type="image/jpg" href="favicon.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nikita Photography</title>
@@ -35,6 +35,113 @@
         }
         .folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }
         .folder-icon { font-size: 2rem; margin-bottom: 10px; }
+
+        /* --- Кнопка "О себе" на главной --- */
+        .about-trigger-container {
+            margin-top: 40px;
+        }
+        .about-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: inherit;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .about-btn:hover {
+            color: #fff;
+        }
+
+        /* --- Стили модального окна "О себе" --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .modal-content {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            padding: 30px;
+            position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .modal-close:hover {
+            opacity: 1;
+        }
+        .modal-body {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+        .modal-photo {
+            flex: 1;
+            max-width: 300px;
+        }
+        .modal-photo img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            object-fit: cover;
+            display: block;
+        }
+        .modal-text {
+            flex: 1.5;
+            color: #fff;
+            text-align: left;
+        }
+        .modal-text h2 {
+            margin-top: 0;
+            font-weight: 400;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+        }
+        .modal-text p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
 
         /* Стили галереи */
         .gallery-section { padding: 50px 5%; display: none; min-height: 100vh; }
@@ -104,7 +211,12 @@
         }
         .float-btn:hover::after { opacity: 1; visibility: visible; bottom: 60px; }
 
-        @media (max-width: 600px) { .folders { flex-direction: column; } }
+        @media (max-width: 680px) { 
+            .folders { flex-direction: column; } 
+            .modal-body { flex-direction: column; text-align: center; }
+            .modal-photo { max-width: 200px; }
+            .modal-text { text-align: center; }
+        }
     </style>
 </head>
 <body>
@@ -112,6 +224,7 @@
     <div id="main" class="hero">
         <h1>NIKITA PHOTOGRAPHY</h1>
         <div class="question">Что я фотографирую?</div>
+        
         <div class="folders">
             <div class="folder" onclick="showGallery('landscape')">
                 <div class="folder-icon">🏔️</div>
@@ -125,6 +238,13 @@
                 <div class="folder-icon">🎸</div>
                 <div class="folder-name">Фестивали</div>
             </div>
+        </div>
+
+        <!-- Кнопка "О себе" под папками -->
+        <div class="about-trigger-container">
+            <button id="openAbout" class="about-btn">
+                О себе <span class="about-icon">👤</span>
+            </button>
         </div>
     </div>
 
@@ -154,24 +274,40 @@
         <div class="lb-thumbs" id="lb-thumbs"></div>
     </div>
 
+    <!-- Модальное окно "О себе" -->
+    <div id="aboutModal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="closeAbout" class="modal-close">&times;</button>
+            <div class="modal-body">
+                <div class="modal-photo">
+                    <!-- Убедись, что фото me.jpg лежит в папке -->
+                    <img src="me.jpg" alt="Никита">
+                </div>
+                <div class="modal-text">
+                    <h2>Обо мне</h2>
+                    <p>Привет! Меня зовут Никита, я фотограф-любитель. Меня больше всего привлекают такие жанры, как анималистика и пейзажная фотография. Активно занимаюсь фотографией с 2023 года, люблю это и горю этим. В этом деле меня привлекает не материальное поощрение, а процесс. </p>
+                    <p>Помимо цифровой фотографии занимаюсь «магией» плёночной фотографии. Предпочитаю чёрно-белые плёнки, занимаюсь самостоятельной проявкой и печатью фотографий оптическим способом.</p>
+                    <p>Смело делюсь результатами в своём телеграм-канале, а плёночными работами на сайте Lomography. </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ПЛАВАЮЩИЕ КНОПКИ -->
     <div class="social-float-wrapper">
-        <!-- Кнопка Фестивали -->
         <a href="https://695f6b65c08df1-22980644.gallery.photo/" class="float-btn fest-btn" target="_blank" data-tooltip="Фестивали">
             <span>🦊</span>
         </a>
 
-        <!-- Кнопка Пленочные работы -->
         <a href="https://www.lomography.com/homes/macktuck706" class="float-btn lomo-btn" target="_blank" data-tooltip="Плёночные работы">
             <span>🎞️</span>
         </a>
 
         <a href="https://t.me/nikitaphotography" class="float-btn tg-btn" target="_blank" data-tooltip="Telegram">
-    <!-- Добавили стили и заливку -->
-    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: white;">
-        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-    </svg>
-</a>
+            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: white;">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
+            </svg>
+        </a>
     </div>
 
     <script>
@@ -187,7 +323,7 @@
             }
         }
 
-        // Вызываем создание сеток (укажи здесь правильное количество фото)
+        // Вызываем создание сеток
         createGrid('grid-l', 'l', 24);
         createGrid('grid-a', 'a', 11);
         createGrid('grid-f', 'f', 18);
@@ -222,6 +358,28 @@
             document.getElementById('main').style.display = 'flex';
             document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
         }
+
+        // --- Логика для окна "О себе" ---
+        const openBtn = document.getElementById('openAbout');
+        const closeBtn = document.getElementById('closeAbout');
+        const modal = document.getElementById('aboutModal');
+
+        openBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
     </script>
 </body>
 </html>
