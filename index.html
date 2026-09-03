@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
+<link rel="icon" type="image/jpg" href="favicon.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nikita Photography</title>
-    <link rel="icon" type="image/jpeg" href="favicon.jpg">
     <style>
         :root { --accent: #0088cc; }
         body { 
@@ -14,12 +14,10 @@
         
         /* Секция приветствия */
         .hero {
-            min-height: 100vh; display: flex; flex-direction: column;
+            height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center;
             background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('background.jpg') center/cover fixed;
             text-align: center;
-            padding-bottom: 90px;
-            box-sizing: border-box;
         }
 
         h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; margin: 0; }
@@ -38,130 +36,41 @@
         .folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }
         .folder-icon { font-size: 2rem; margin-bottom: 10px; }
 
-        /* --- Кнопка "О себе" на главной --- */
-        .about-trigger-container {
-            margin-top: 40px;
-        }
+        /* Кнопка "О себе" на главной */
+        .about-trigger-container { margin-top: 40px; }
         .about-btn {
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.7);
-            font-family: inherit;
-            font-size: 16px;
-            cursor: pointer;
-            transition: color 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            background: transparent; border: none; color: rgba(255, 255, 255, 0.7);
+            font-family: inherit; font-size: 16px; cursor: pointer;
+            transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 8px;
         }
-        .about-btn:hover {
-            color: #fff;
-        }
+        .about-btn:hover { color: #fff; }
 
-        /* --- Стили модального окна "О себе" --- */
+        /* Стили модального окна "О себе" */
         .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-            padding: 10px;
-            box-sizing: border-box;
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px); z-index: 9999;
+            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
         }
-        .modal-overlay.active {
-            display: flex;
-            opacity: 1;
-        }
+        .modal-overlay.active { display: flex; opacity: 1; }
         .modal-content {
-            background: rgba(25, 25, 25, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            width: 100%;
-            max-width: 600px;
-            max-height: 85vh;
-            padding: 30px 20px;
-            position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            transform: scale(0.9);
-            transition: transform 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px; width: 90%; max-width: 800px; padding: 30px; position: relative;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease;
         }
-        .modal-overlay.active .modal-content {
-            transform: scale(1);
-        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
         .modal-close {
-            position: absolute;
-            top: 10px;
-            right: 15px;
-            background: transparent;
-            border: none;
-            color: #fff;
-            font-size: 32px;
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-            z-index: 10;
+            position: absolute; top: 15px; right: 20px; background: transparent; border: none;
+            color: #fff; font-size: 28px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s;
         }
-        .modal-close:hover {
-            opacity: 1;
-        }
-        .modal-body {
-            display: flex;
-            gap: 25px;
-            align-items: center;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-        
-        .modal-body::-webkit-scrollbar {
-            width: 4px;
-        }
-        .modal-body::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-        }
-
-        .modal-photo {
-            flex: 1;
-            max-width: 300px;
-        }
-        .modal-photo img {
-            width: 100%;
-            height: auto;
-            border-radius: 12px;
-            object-fit: cover;
-            display: block;
-        }
-        .modal-text {
-            flex: 1.5;
-            color: #fff;
-            text-align: left;
-        }
-        .modal-text h2 {
-            margin-top: 0;
-            font-weight: 400;
-            letter-spacing: 2px;
-            margin-bottom: 15px;
-        }
-        .modal-text p {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 12px;
-        }
+        .modal-close:hover { opacity: 1; }
+        .modal-body { display: flex; gap: 30px; align-items: center; }
+        .modal-photo { flex: 1; max-width: 300px; }
+        .modal-photo img { width: 100%; height: auto; border-radius: 12px; object-fit: cover; display: block; }
+        .modal-text { flex: 1.5; color: #fff; text-align: left; }
+        .modal-text h2 { margin-top: 0; font-weight: 400; letter-spacing: 2px; margin-bottom: 15px; }
+        .modal-text p { color: rgba(255, 255, 255, 0.8); font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
 
         /* Стили галереи */
         .gallery-section { padding: 50px 5%; display: none; min-height: 100vh; }
@@ -188,12 +97,23 @@
             justify-content: center; align-items: center; z-index: 1000;
         }
         #lightbox.active { display: flex; }
-        #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; }
-        .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; }
+        #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; position: relative; z-index: 1002; }
+        .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; z-index: 1003;}
+        
+        /* Новые стили для кнопок-зон навигации */
+        .nav-btn {
+            position: absolute; top: 0; bottom: 100px; /* Отступ снизу для миниатюр */
+            width: 20%; min-width: 60px; display: flex; align-items: center; justify-content: center;
+            font-size: 50px; color: rgba(255, 255, 255, 0.3); cursor: pointer; user-select: none;
+            transition: color 0.3s, background 0.3s; z-index: 1001;
+        }
+        .nav-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
+        .prev-btn { left: 0; }
+        .next-btn { right: 0; }
         
         .lb-thumbs {
             display: flex; gap: 10px; margin-top: 20px; 
-            max-width: 90%; overflow-x: auto; padding: 10px;
+            max-width: 90%; overflow-x: auto; padding: 10px; z-index: 1003;
         }
         .lb-thumbs img {
             height: 60px; width: 90px; object-fit: cover; 
@@ -210,34 +130,28 @@
             width: 50px; height: 50px; border-radius: 50%; 
             display: flex; justify-content: center; align-items: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s;
-            position: relative; text-decoration: none;
-            font-size: 22px;
+            position: relative; text-decoration: none; font-size: 22px;
         }
         .float-btn:hover { transform: translateY(-5px); }
-
         .tg-btn { background: var(--accent); }
         .lomo-btn { background: #eb212e; }
         .fest-btn { background: #ff8c00; }
 
-        /* Подсказки при наведении */
         .float-btn::after {
-            content: attr(data-tooltip);
-            position: absolute; bottom: 65px; left: 50%;
-            transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95); color: #000;
+            content: attr(data-tooltip); position: absolute; bottom: 65px; left: 50%;
+            transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); color: #000;
             padding: 5px 12px; border-radius: 6px; font-size: 13px;
             white-space: nowrap; opacity: 0; visibility: hidden;
             transition: 0.3s; font-weight: 500;
         }
         .float-btn:hover::after { opacity: 1; visibility: visible; bottom: 60px; }
 
-        /* Мобильная адаптация */
         @media (max-width: 680px) { 
-            .folders { flex-direction: column; width: 85%; margin-top: 25px; } 
-            .hero { padding-top: 40px; }
-            .modal-body { flex-direction: column; text-align: center; align-items: center; }
-            .modal-photo { max-width: 180px; }
+            .folders { flex-direction: column; } 
+            .modal-body { flex-direction: column; text-align: center; }
+            .modal-photo { max-width: 200px; }
             .modal-text { text-align: center; }
+            .nav-btn { width: 30%; } /* Делаем зоны тапа на мобильных чуть шире */
         }
     </style>
 </head>
@@ -262,7 +176,6 @@
             </div>
         </div>
 
-        <!-- Кнопка "О себе" под папками -->
         <div class="about-trigger-container">
             <button id="openAbout" class="about-btn">
                 О себе <span class="about-icon">👤</span>
@@ -270,7 +183,6 @@
         </div>
     </div>
 
-    <!-- Секции для разных галерей -->
     <div id="landscape" class="gallery-section">
         <button class="back-btn" onclick="hideGallery()">← Назад</button>
         <h2>Пейзажи</h2>
@@ -289,20 +201,21 @@
         <div class="gallery-grid" id="grid-f"></div>
     </div>
 
-    <!-- Лайтбокс -->
     <div id="lightbox">
         <span class="close-lb" onclick="closeLightbox()">&times;</span>
+        
+        <div class="nav-btn prev-btn" onclick="changeImage(-1, event)">&#10094;</div>
         <img id="lightbox-img" src="">
+        <div class="nav-btn next-btn" onclick="changeImage(1, event)">&#10095;</div>
+        
         <div class="lb-thumbs" id="lb-thumbs"></div>
     </div>
 
-    <!-- Модальное окно "О себе" -->
     <div id="aboutModal" class="modal-overlay">
         <div class="modal-content">
             <button id="closeAbout" class="modal-close">&times;</button>
             <div class="modal-body">
                 <div class="modal-photo">
-                    <!-- Убедись, что фото me.jpg лежит в папке -->
                     <img src="me.jpg" alt="Никита">
                 </div>
                 <div class="modal-text">
@@ -315,16 +228,13 @@
         </div>
     </div>
 
-    <!-- ПЛАВАЮЩИЕ КНОПКИ -->
     <div class="social-float-wrapper">
         <a href="https://695f6b65c08df1-22980644.gallery.photo/" class="float-btn fest-btn" target="_blank" data-tooltip="Фестивали">
             <span>🦊</span>
         </a>
-
         <a href="https://www.lomography.com/homes/macktuck706" class="float-btn lomo-btn" target="_blank" data-tooltip="Плёночные работы">
             <span>🎞️</span>
         </a>
-
         <a href="https://t.me/nikitaphotography" class="float-btn tg-btn" target="_blank" data-tooltip="Telegram">
             <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: white;">
                 <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
@@ -333,42 +243,90 @@
     </div>
 
     <script>
-        // Функция для автоматического создания сетки фото
+        // Переменные для хранения состояния лайтбокса
+        let currentLbIndex = 1;
+        let currentLbPrefix = '';
+        let currentLbCount = 0;
+
         function createGrid(containerId, prefix, count) {
             const grid = document.getElementById(containerId);
             for (let i = 1; i <= count; i++) {
                 const src = `photos/${i}${prefix}.jpg`;
                 const img = document.createElement('img');
                 img.src = src;
-                img.onclick = () => openLightbox(src, prefix, count);
+                // Теперь передаем индекс (i), а не ссылку на фото
+                img.onclick = () => openLightbox(i, prefix, count);
                 grid.appendChild(img);
             }
         }
 
-        // Вызываем создание сеток
         createGrid('grid-l', 'l', 27);
-        createGrid('grid-a', 'a', 17);
+        createGrid('grid-a', 'a', 14);
         createGrid('grid-f', 'f', 18);
 
-        function openLightbox(src, prefix, count) {
+        function openLightbox(index, prefix, count) {
+            // Сохраняем данные текущего просмотра
+            currentLbIndex = index;
+            currentLbPrefix = prefix;
+            currentLbCount = count;
+            
             const lb = document.getElementById('lightbox');
             const lbImg = document.getElementById('lightbox-img');
             const thumbs = document.getElementById('lb-thumbs');
+            
+            const src = `photos/${index}${prefix}.jpg`;
             lbImg.src = src;
+            
             thumbs.innerHTML = '';
             for (let i = 1; i <= count; i++) {
                 const tSrc = `photos/${i}${prefix}.jpg`;
                 const thumb = document.createElement('img');
                 thumb.src = tSrc;
-                if(tSrc === src) thumb.className = 'active';
-                thumb.onclick = (e) => { e.stopPropagation(); openLightbox(tSrc, prefix, count); };
+                if(i === index) thumb.className = 'active';
+                thumb.onclick = (e) => { e.stopPropagation(); openLightbox(i, prefix, count); };
                 thumbs.appendChild(thumb);
             }
             lb.classList.add('active');
+
+            // Прокручиваем ленту миниатюр так, чтобы активная была видна
+            const activeThumb = thumbs.querySelector('.active');
+            if (activeThumb) {
+                activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            }
+        }
+
+        // Функция для смены картинки вперед/назад
+        function changeImage(step, event) {
+            if (event) event.stopPropagation(); // Чтобы клик не уходил на закрытие фона
+            
+            let newIndex = currentLbIndex + step;
+            
+            // Если дошли до конца, перекидываем в начало и наоборот
+            if (newIndex > currentLbCount) newIndex = 1;
+            if (newIndex < 1) newIndex = currentLbCount;
+            
+            openLightbox(newIndex, currentLbPrefix, currentLbCount);
         }
 
         function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
         
+        // Закрытие при клике на черный фон (вне картинки)
+        document.getElementById('lightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'lightbox') {
+                closeLightbox();
+            }
+        });
+
+        // Управление с клавиатуры (стрелки + Esc)
+        document.addEventListener('keydown', (e) => {
+            const lb = document.getElementById('lightbox');
+            if (lb.classList.contains('active')) {
+                if (e.key === 'ArrowLeft') changeImage(-1);
+                else if (e.key === 'ArrowRight') changeImage(1);
+                else if (e.key === 'Escape') closeLightbox();
+            }
+        });
+
         function showGallery(id) {
             document.getElementById('main').style.display = 'none';
             document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
@@ -381,7 +339,7 @@
             document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
         }
 
-        // --- Логика для окна "О себе" ---
+        // Логика для окна "О себе"
         const openBtn = document.getElementById('openAbout');
         const closeBtn = document.getElementById('closeAbout');
         const modal = document.getElementById('aboutModal');
