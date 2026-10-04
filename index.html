@@ -1,366 +1,390 @@
-<!DOCTYPE html>
-<html lang="ru">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-    <link rel="icon" type="image/jpg" href="favicon.jpg">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nikita Photography</title>
-    <style>
-        :root { --accent: #0088cc; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-            margin: 0; background: #000; color: #fff; overflow-x: hidden;
-        }
-        
-        /* Секция приветствия */
-        .hero {
-            height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('background.jpg') center/cover fixed;
-            text-align: center;
-        }
-
-        h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; margin: 0; }
-        .question { font-size: 1.5rem; margin-top: 30px; font-weight: 300; color: #ccc; }
-
-        /* Сетка папок (категорий) */
-        .folders {
-            display: grid; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 20px; 
-            width: 90%; 
-            max-width: 1000px; 
-            margin-top: 40px;
-        }
-        .folder {
-            padding: 30px 10px; border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 15px; background: rgba(255,255,255,0.05);
-            backdrop-filter: blur(10px); cursor: pointer; transition: 0.3s;
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }
-        .folder-icon { font-size: 2rem; margin-bottom: 10px; }
-
-        /* Кнопка "О себе" на главной */
-        .about-trigger-container { margin-top: 40px; }
-        .about-btn {
-            background: transparent; border: none; color: rgba(255, 255, 255, 0.7);
-            font-family: inherit; font-size: 16px; cursor: pointer;
-            transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 8px;
-        }
-        .about-btn:hover { color: #fff; }
-
-        /* Стили модального окна "О себе" */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px); z-index: 9999;
-            justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;
-        }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-content {
-            background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px; width: 90%; max-width: 800px; padding: 30px; position: relative;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease;
-        }
-        .modal-overlay.active .modal-content { transform: scale(1); }
-        .modal-close {
-            position: absolute; top: 15px; right: 20px; background: transparent; border: none;
-            color: #fff; font-size: 28px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s;
-        }
-        .modal-close:hover { opacity: 1; }
-        .modal-body { display: flex; gap: 30px; align-items: center; }
-        .modal-photo { flex: 1; max-width: 300px; }
-        .modal-photo img { width: 100%; height: auto; border-radius: 12px; object-fit: cover; display: block; }
-        .modal-text { flex: 1.5; color: #fff; text-align: left; }
-        .modal-text h2 { margin-top: 0; font-weight: 400; letter-spacing: 2px; margin-bottom: 15px; }
-        .modal-text p { color: rgba(255, 255, 255, 0.8); font-size: 15px; line-height: 1.6; margin-bottom: 12px; }
-
-        /* Стили галереи */
-        .gallery-section { padding: 50px 5%; display: none; min-height: 100vh; }
-        .gallery-section.active { display: block; }
-        .gallery-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 15px; margin-top: 30px;
-        }
-        .gallery-grid img {
-            width: 100%; aspect-ratio: 3/2; object-fit: cover;
-            border-radius: 8px; transition: 0.3s; cursor: pointer;
-        }
-        .gallery-grid img:hover { transform: scale(1.03); filter: brightness(1.1); }
-        
-        .back-btn {
-            background: none; border: 1px solid #444; color: #fff;
-            padding: 10px 20px; border-radius: 50px; cursor: pointer; margin-bottom: 20px;
-        }
-
-        /* Просмотр фото (Lightbox) */
-        #lightbox {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95); display: none; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 1000;
-        }
-        #lightbox.active { display: flex; }
-        #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; position: relative; z-index: 1002; }
-        .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; z-index: 1003;}
-        
-        /* Кнопки-зоны навигации */
-        .nav-btn {
-            position: absolute; top: 0; bottom: 100px;
-            width: 20%; min-width: 60px; display: flex; align-items: center; justify-content: center;
-            font-size: 50px; color: rgba(255, 255, 255, 0.3); cursor: pointer; user-select: none;
-            transition: color 0.3s, background 0.3s; z-index: 1001;
-        }
-        .nav-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }
-        .prev-btn { left: 0; }
-        .next-btn { right: 0; }
-        
-        .lb-thumbs {
-            display: flex; gap: 10px; margin-top: 20px; 
-            max-width: 90%; overflow-x: auto; padding: 10px; z-index: 1003;
-        }
-        .lb-thumbs img {
-            height: 60px; width: 90px; object-fit: cover; 
-            border-radius: 4px; cursor: pointer; opacity: 0.5; transition: 0.3s;
-        }
-        .lb-thumbs img.active { opacity: 1; border: 2px solid var(--accent); }
-
-        /* Плавающие кнопки соцсетей */
-        .social-float-wrapper {
-            position: fixed; right: 20px; bottom: 20px;
-            display: flex; gap: 15px; z-index: 100;
-        }
-        .float-btn {
-            width: 50px; height: 50px; border-radius: 50%; 
-            display: flex; justify-content: center; align-items: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s;
-            position: relative; text-decoration: none; font-size: 22px;
-        }
-        .float-btn:hover { transform: translateY(-5px); }
-        .tg-btn { background: var(--accent); }
-        .lomo-btn { background: #eb212e; }
-        .fest-btn { background: #ff8c00; }
-
-        .float-btn::after {
-            content: attr(data-tooltip); position: absolute; bottom: 65px; left: 50%;
-            transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); color: #000;
-            padding: 5px 12px; border-radius: 6px; font-size: 13px;
-            white-space: nowrap; opacity: 0; visibility: hidden;
-            transition: 0.3s; font-weight: 500;
-        }
-        .float-btn:hover::after { opacity: 1; visibility: visible; bottom: 60px; }
-
-        @media (max-width: 768px) { 
-            .folders { display: flex; flex-direction: column; width: 85%; } 
-            .modal-body { flex-direction: column; text-align: center; }
-            .modal-photo { max-width: 200px; }
-            .modal-text { text-align: center; }
-            .nav-btn { width: 30%; }
-        }
-    </style>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.7">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
 </head>
 <body>
-
-    <div id="main" class="hero">
-        <h1>NIKITA PHOTOGRAPHY</h1>
-        <div class="question">Что я фотографирую?</div>
-        
-        <div class="folders">
-            <div class="folder" onclick="showGallery('landscape')">
-                <div class="folder-icon">🏔️</div>
-                <div class="folder-name">Пейзаж</div>
-            </div>
-            <div class="folder" onclick="showGallery('animals')">
-                <div class="folder-icon">🦆</div>
-                <div class="folder-name">Животные</div>
-            </div>
-            <div class="folder" onclick="showGallery('fest')">
-                <div class="folder-icon">🎸</div>
-                <div class="folder-name">Фестивали</div>
-            </div>
-            <div class="folder" onclick="window.open('/portfolio', '_blank')">
-                <div class="folder-icon">📂</div>
-                <div class="folder-name">Портфолио (Диск)</div>
-            </div>
-        </div>
-
-        <div class="about-trigger-container">
-            <button id="openAbout" class="about-btn">
-                О себе <span class="about-icon">👤</span>
-            </button>
-        </div>
-    </div>
-
-    <div id="landscape" class="gallery-section">
-        <button class="back-btn" onclick="hideGallery()">← Назад</button>
-        <h2>Пейзажи</h2>
-        <div class="gallery-grid" id="grid-l"></div>
-    </div>
-
-    <div id="animals" class="gallery-section">
-        <button class="back-btn" onclick="hideGallery()">← Назад</button>
-        <h2>Животные</h2>
-        <div class="gallery-grid" id="grid-a"></div>
-    </div>
-
-    <div id="fest" class="gallery-section">
-        <button class="back-btn" onclick="hideGallery()">← Назад</button>
-        <h2>Фестивали</h2>
-        <div class="gallery-grid" id="grid-f"></div>
-    </div>
-
-    <div id="lightbox">
-        <span class="close-lb" onclick="closeLightbox()">&times;</span>
-        
-        <div class="nav-btn prev-btn" onclick="changeImage(-1, event)">&#10094;</div>
-        <img id="lightbox-img" src="">
-        <div class="nav-btn next-btn" onclick="changeImage(1, event)">&#10095;</div>
-        
-        <div class="lb-thumbs" id="lb-thumbs"></div>
-    </div>
-
-    <div id="aboutModal" class="modal-overlay">
-        <div class="modal-content">
-            <button id="closeAbout" class="modal-close">&times;</button>
-            <div class="modal-body">
-                <div class="modal-photo">
-                    <img src="me.jpg" alt="Никита">
-                </div>
-                <div class="modal-text">
-                    <h2>Обо мне</h2>
-                    <p>Привет! Меня зовут Никита, я фотограф-любитель. Меня больше всего привлекают такие жанры, как анималистика и пейзажная фотография. Активно занимаюсь фотографией с 2023 года, люблю это и горю этим. В этом деле меня привлекает не материальное поощрение, а процесс. </p>
-                    <p>Помимо цифровой фотографии занимаюсь «магией» плёночной фотографии. Предпочитаю чёрно-белые плёнки, занимаюсь самостоятельной проявкой и печатью фотографий оптическим способом.</p>
-                    <p>Смело делюсь результатами в своём телеграм-канале, а плёночными работами на сайте Lomography. </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="social-float-wrapper">
-        <a href="https://695f6b65c08df1-22980644.gallery.photo/" class="float-btn fest-btn" target="_blank" data-tooltip="Фестивали">
-            <span>🦊</span>
-        </a>
-        <a href="https://www.lomography.com/homes/macktuck706" class="float-btn lomo-btn" target="_blank" data-tooltip="Плёночные работы">
-            <span>🎞️</span>
-        </a>
-        <a href="https://t.me/nikitaphotography" class="float-btn tg-btn" target="_blank" data-tooltip="Telegram">
-            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: white;">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/>
-            </svg>
-        </a>
-    </div>
-
-    <script>
-        let currentLbIndex = 1;
-        let currentLbPrefix = '';
-        let currentLbCount = 0;
-
-        function createGrid(containerId, prefix, count) {
-            const grid = document.getElementById(containerId);
-            for (let i = 1; i <= count; i++) {
-                const src = `photos/${i}${prefix}.jpg`;
-                const img = document.createElement('img');
-                img.src = src;
-                img.onclick = () => openLightbox(i, prefix, count);
-                grid.appendChild(img);
-            }
-        }
-
-        createGrid('grid-l', 'l', 31);
-        createGrid('grid-a', 'a', 14);
-        createGrid('grid-f', 'f', 18);
-
-        function openLightbox(index, prefix, count) {
-            currentLbIndex = index;
-            currentLbPrefix = prefix;
-            currentLbCount = count;
-            
-            const lb = document.getElementById('lightbox');
-            const lbImg = document.getElementById('lightbox-img');
-            const thumbs = document.getElementById('lb-thumbs');
-            
-            const src = `photos/${index}${prefix}.jpg`;
-            lbImg.src = src;
-            
-            thumbs.innerHTML = '';
-            for (let i = 1; i <= count; i++) {
-                const tSrc = `photos/${i}${prefix}.jpg`;
-                const thumb = document.createElement('img');
-                thumb.src = tSrc;
-                if(i === index) thumb.className = 'active';
-                thumb.onclick = (e) => { e.stopPropagation(); openLightbox(i, prefix, count); };
-                thumbs.appendChild(thumb);
-            }
-            lb.classList.add('active');
-
-            const activeThumb = thumbs.querySelector('.active');
-            if (activeThumb) {
-                activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-            }
-        }
-
-        function changeImage(step, event) {
-            if (event) event.stopPropagation();
-            
-            let newIndex = currentLbIndex + step;
-            
-            if (newIndex > currentLbCount) newIndex = 1;
-            if (newIndex < 1) newIndex = currentLbCount;
-            
-            openLightbox(newIndex, currentLbPrefix, currentLbCount);
-        }
-
-        function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
-        
-        document.getElementById('lightbox').addEventListener('click', (e) => {
-            if (e.target.id === 'lightbox') {
-                closeLightbox();
-            }
-        });
-
-        document.addEventListener('keydown', (e) => {
-            const lb = document.getElementById('lightbox');
-            if (lb.classList.contains('active')) {
-                if (e.key === 'ArrowLeft') changeImage(-1);
-                else if (e.key === 'ArrowRight') changeImage(1);
-                else if (e.key === 'Escape') closeLightbox();
-            }
-        });
-
-        function showGallery(id) {
-            document.getElementById('main').style.display = 'none';
-            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
-        }
-
-        function hideGallery() {
-            document.getElementById('main').style.display = 'flex';
-            document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
-        }
-
-        const openBtn = document.getElementById('openAbout');
-        const closeBtn = document.getElementById('closeAbout');
-        const modal = document.getElementById('aboutModal');
-
-        openBtn.addEventListener('click', () => {
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden'; 
-        });
-
-        closeBtn.addEventListener('click', () => {
-            modal.classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    </script>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ru"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;link rel="icon" type="image/jpg" href="favicon.jpg"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;Nikita Photography&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>:root { --accent: #0088cc; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin: 0; background: #000; color: #fff; overflow-x: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Секция приветствия */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.hero {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 100vh; display: flex; flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center; align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('background.jpg') center/cover fixed;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>h1 { font-weight: 200; letter-spacing: 5px; text-transform: uppercase; margin: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.question { font-size: 1.5rem; margin-top: 30px; font-weight: 300; color: #ccc; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Сетка папок (категорий) */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.folders {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: grid;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>grid-template-columns: repeat(4, 1fr);<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 20px;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 90%;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 1000px;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>margin-top: 40px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.folder {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 30px 10px; border: 1px solid rgba(255,255,255,0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 15px; background: rgba(255,255,255,0.05);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>backdrop-filter: blur(10px); cursor: pointer; transition: 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-sizing: border-box;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.folder-icon { font-size: 2rem; margin-bottom: 10px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Кнопка "О себе" на главной */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.about-trigger-container { margin-top: 40px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.about-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: transparent; border: none; color: rgba(255, 255, 255, 0.7);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-family: inherit; font-size: 16px; cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: color 0.3s ease; display: inline-flex; align-items: center; gap: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.about-btn:hover { color: #fff; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Стили модального окна "О себе" */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-overlay {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-backdrop-filter: blur(8px); z-index: 9999;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-overlay.active { display: flex; opacity: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-content {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(20px);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>-webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 16px; width: 90%; max-width: 800px; padding: 30px; position: relative;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 20px 40px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-overlay.active .modal-content { transform: scale(1); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-close {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; top: 15px; right: 20px; background: transparent; border: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>color: #fff; font-size: 28px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-close:hover { opacity: 1; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-body { display: flex; gap: 30px; align-items: center; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-photo { flex: 1; max-width: 300px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-photo img { width: 100%; height: auto; border-radius: 12px; object-fit: cover; display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-text { flex: 1.5; color: #fff; text-align: left; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-text h2 { margin-top: 0; font-weight: 400; letter-spacing: 2px; margin-bottom: 15px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.modal-text p { color: rgba(255, 255, 255, 0.8); font-size: 15px; line-height: 1.6; margin-bottom: 12px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Стили галереи */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.gallery-section { padding: 50px 5%; display: none; min-height: 100vh; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.gallery-section.active { display: block; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.gallery-grid {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>gap: 15px; margin-top: 30px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.gallery-grid img {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 100%; aspect-ratio: 3/2; object-fit: cover;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 8px; transition: 0.3s; cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.gallery-grid img:hover { transform: scale(1.03); filter: brightness(1.1); }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.back-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: none; border: 1px solid #444; color: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 10px 20px; border-radius: 50px; cursor: pointer; margin-bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Просмотр фото (Lightbox) */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#lightbox {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed; top: 0; left: 0; width: 100%; height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>background: rgba(0,0,0,0.95); display: none; flex-direction: column;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>justify-content: center; align-items: center; z-index: 1000;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#lightbox.active { display: flex; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>#lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; position: relative; z-index: 1002; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; z-index: 1003;}</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Кнопки-зоны навигации */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.nav-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: absolute; top: 0; bottom: 100px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 20%; min-width: 60px; display: flex; align-items: center; justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>font-size: 50px; color: rgba(255, 255, 255, 0.3); cursor: pointer; user-select: none;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: color 0.3s, background 0.3s; z-index: 1001;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.nav-btn:hover { color: #fff; background: rgba(255, 255, 255, 0.05); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.prev-btn { left: 0; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.next-btn { right: 0; }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.lb-thumbs {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex; gap: 10px; margin-top: 20px;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>max-width: 90%; overflow-x: auto; padding: 10px; z-index: 1003;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.lb-thumbs img {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>height: 60px; width: 90px; object-fit: cover;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>border-radius: 4px; cursor: pointer; opacity: 0.5; transition: 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.lb-thumbs img.active { opacity: 1; border: 2px solid var(--accent); }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>/* Плавающие кнопки соцсетей */</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.social-float-wrapper {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: fixed; right: 20px; bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex; gap: 15px; z-index: 100;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.float-btn {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>width: 50px; height: 50px; border-radius: 50%;<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>display: flex; justify-content: center; align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>box-shadow: 0 4px 15px rgba(0,0,0,0.5); transition: 0.3s;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>position: relative; text-decoration: none; font-size: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.float-btn:hover { transform: translateY(-5px); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.tg-btn { background: var(--accent); }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.lomo-btn { background: #eb212e; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.fest-btn { background: #ff8c00; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>.float-btn::after {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>content: attr(data-tooltip); position: absolute; bottom: 65px; left: 50%;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transform: translateX(-50%); background: rgba(255, 255, 255, 0.95); color: #000;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>padding: 5px 12px; border-radius: 6px; font-size: 13px;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>white-space: nowrap; opacity: 0; visibility: hidden;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>transition: 0.3s; font-weight: 500;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.float-btn:hover::after { opacity: 1; visibility: visible; bottom: 60px; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>@media (max-width: 768px) {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>.folders { display: flex; flex-direction: column; width: 85%; }<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>.modal-body { flex-direction: column; text-align: center; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.modal-photo { max-width: 200px; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.modal-text { text-align: center; }</p>
+<p class="p1"><span class="Apple-converted-space">            </span>.nav-btn { width: 30%; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="main" class="hero"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1&gt;NIKITA PHOTOGRAPHY&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="question"&gt;Что я фотографирую?&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="folders"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="folder" onclick="showGallery('landscape')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-icon"&gt;🏔️&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-name"&gt;Пейзаж&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="folder" onclick="showGallery('animals')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-icon"&gt;🦆&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-name"&gt;Животные&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="folder" onclick="showGallery('fest')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-icon"&gt;🎸&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-name"&gt;Фестивали&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="folder" onclick="showGallery('portfolio')"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-icon"&gt;📂&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="folder-name"&gt;Портфолио (Диск)&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="about-trigger-container"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="openAbout" class="about-btn"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>О себе &lt;span class="about-icon"&gt;👤&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="landscape" class="gallery-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="back-btn" onclick="hideGallery()"&gt;← Назад&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Пейзажи&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="gallery-grid" id="grid-l"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="animals" class="gallery-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="back-btn" onclick="hideGallery()"&gt;← Назад&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Животные&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="gallery-grid" id="grid-a"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="fest" class="gallery-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="back-btn" onclick="hideGallery()"&gt;← Назад&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Фестивали&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="gallery-grid" id="grid-f"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="portfolio" class="gallery-section"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button class="back-btn" onclick="hideGallery()"&gt;← Назад&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h2&gt;Портфолио&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="gallery-grid" id="grid-p"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="lightbox"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;span class="close-lb" onclick="closeLightbox()"&gt;&amp;times;&lt;/span&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="nav-btn prev-btn" onclick="changeImage(-1, event)"&gt;&amp;#10094;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;img id="lightbox-img" src=""&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="nav-btn next-btn" onclick="changeImage(1, event)"&gt;&amp;#10095;&lt;/div&gt;</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="lb-thumbs" id="lb-thumbs"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div id="aboutModal" class="modal-overlay"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="modal-content"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;button id="closeAbout" class="modal-close"&gt;&amp;times;&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="modal-body"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="modal-photo"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;img src="me.jpg" alt="Никита"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;div class="modal-text"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;h2&gt;Обо мне&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;Привет! Меня зовут Никита, я фотограф-любитель. Меня больше всего привлекают такие жанры, как анималистика и пейзажная фотография. Активно занимаюсь фотографией с 2023 года, люблю это и горю этим. В этом деле меня привлекает не материальное поощрение, а процесс. &lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;Помимо цифровой фотографии занимаюсь «магией» плёночной фотографии. Предпочитаю чёрно-белые плёнки, занимаюсь самостоятельной проявкой и печатью фотографий оптическим способом.&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>&lt;p&gt;Смело делюсь результатами в своём телеграм-канале, а плёночными работами на сайте Lomography. &lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="social-float-wrapper"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;a href="https://695f6b65c08df1-22980644.gallery.photo/" class="float-btn fest-btn" target="_blank" data-tooltip="Фестивали"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;🦊&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/a&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;a href="https://www.lomography.com/homes/macktuck706" class="float-btn lomo-btn" target="_blank" data-tooltip="Плёночные работы"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span&gt;🎞️&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/a&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;a href="https://t.me/nikitaphotography" class="float-btn tg-btn" target="_blank" data-tooltip="Telegram"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: white;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.74-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .38z"/&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/svg&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/a&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentLbIndex = 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentLbPrefix = '';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>let currentLbCount = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function createGrid(containerId, prefix, count) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const grid = document.getElementById(containerId);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt;= count; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const src = `photos/${i}${prefix}.jpg`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const img = document.createElement('img');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>img.src = src;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>img.onclick = () =&gt; openLightbox(i, prefix, count);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>grid.appendChild(img);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>// Подключение подгрузки фото:</p>
+<p class="p1"><span class="Apple-converted-space">        </span>createGrid('grid-l', 'l', 31); // Пейзажи (1l.jpg - 31l.jpg)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>createGrid('grid-a', 'a', 14); // Животные (1a.jpg - 14a.jpg)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>createGrid('grid-f', 'f', 18); // Фестивали (1f.jpg - 18f.jpg)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>createGrid('grid-p', 'p', 10); // Портфолио (1p.jpg - 10p.jpg) — поменяй число 10 на нужное количество файлов!</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function openLightbox(index, prefix, count) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentLbIndex = index;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentLbPrefix = prefix;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>currentLbCount = count;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const lb = document.getElementById('lightbox');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const lbImg = document.getElementById('lightbox-img');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const thumbs = document.getElementById('lb-thumbs');</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const src = `photos/${index}${prefix}.jpg`;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lbImg.src = src;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>thumbs.innerHTML = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt;= count; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const tSrc = `photos/${i}${prefix}.jpg`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>const thumb = document.createElement('img');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>thumb.src = tSrc;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if(i === index) thumb.className = 'active';</p>
+<p class="p1"><span class="Apple-converted-space">                </span>thumb.onclick = (e) =&gt; { e.stopPropagation(); openLightbox(i, prefix, count); };</p>
+<p class="p1"><span class="Apple-converted-space">                </span>thumbs.appendChild(thumb);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>lb.classList.add('active');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>const activeThumb = thumbs.querySelector('.active');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (activeThumb) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function changeImage(step, event) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (event) event.stopPropagation();</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>let newIndex = currentLbIndex + step;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (newIndex &gt; currentLbCount) newIndex = 1;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (newIndex &lt; 1) newIndex = currentLbCount;</p>
+<p class="p2"><span class="Apple-converted-space">            </span></p>
+<p class="p1"><span class="Apple-converted-space">            </span>openLightbox(newIndex, currentLbPrefix, currentLbCount);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }</p>
+<p class="p2"><span class="Apple-converted-space">        </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.getElementById('lightbox').addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e.target.id === 'lightbox') {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>closeLightbox();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.addEventListener('keydown', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const lb = document.getElementById('lightbox');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (lb.classList.contains('active')) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (e.key === 'ArrowLeft') changeImage(-1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>else if (e.key === 'ArrowRight') changeImage(1);</p>
+<p class="p1"><span class="Apple-converted-space">                </span>else if (e.key === 'Escape') closeLightbox();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function showGallery(id) {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('main').style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.gallery-section').forEach(s =&gt; s.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById(id).classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>window.scrollTo(0,0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function hideGallery() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.getElementById('main').style.display = 'flex';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll('.gallery-section').forEach(s =&gt; s.classList.remove('active'));</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const openBtn = document.getElementById('openAbout');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const closeBtn = document.getElementById('closeAbout');</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const modal = document.getElementById('aboutModal');</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>openBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>modal.classList.add('active');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.body.style.overflow = 'hidden';<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>closeBtn.addEventListener('click', () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>modal.classList.remove('active');</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.body.style.overflow = '';</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>modal.addEventListener('click', (e) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if (e.target === modal) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>modal.classList.remove('active');</p>
+<p class="p1"><span class="Apple-converted-space">                </span>document.body.style.overflow = '';</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
 </body>
 </html>
