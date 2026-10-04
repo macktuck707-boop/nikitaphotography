@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<link rel="icon" type="image/jpg" href="favicon.jpg">
+    <link rel="icon" type="image/jpg" href="favicon.jpg">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nikita Photography</title>
@@ -25,13 +25,19 @@
 
         /* Сетка папок (категорий) */
         .folders {
-            display: flex; gap: 20px; width: 90%; max-width: 900px; margin-top: 40px;
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
+            width: 90%; 
+            max-width: 1000px; 
+            margin-top: 40px;
         }
         .folder {
-            flex: 1; padding: 30px 10px; border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px 10px; border: 1px solid rgba(255,255,255,0.1);
             border-radius: 15px; background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px); cursor: pointer; transition: 0.3s;
             text-align: center;
+            box-sizing: border-box;
         }
         .folder:hover { transform: translateY(-10px); border-color: var(--accent); background: rgba(255,255,255,0.1); }
         .folder-icon { font-size: 2rem; margin-bottom: 10px; }
@@ -100,9 +106,9 @@
         #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; position: relative; z-index: 1002; }
         .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; z-index: 1003;}
         
-        /* Новые стили для кнопок-зон навигации */
+        /* Кнопки-зоны навигации */
         .nav-btn {
-            position: absolute; top: 0; bottom: 100px; /* Отступ снизу для миниатюр */
+            position: absolute; top: 0; bottom: 100px;
             width: 20%; min-width: 60px; display: flex; align-items: center; justify-content: center;
             font-size: 50px; color: rgba(255, 255, 255, 0.3); cursor: pointer; user-select: none;
             transition: color 0.3s, background 0.3s; z-index: 1001;
@@ -146,12 +152,12 @@
         }
         .float-btn:hover::after { opacity: 1; visibility: visible; bottom: 60px; }
 
-        @media (max-width: 680px) { 
-            .folders { flex-direction: column; } 
+        @media (max-width: 768px) { 
+            .folders { display: flex; flex-direction: column; width: 85%; } 
             .modal-body { flex-direction: column; text-align: center; }
             .modal-photo { max-width: 200px; }
             .modal-text { text-align: center; }
-            .nav-btn { width: 30%; } /* Делаем зоны тапа на мобильных чуть шире */
+            .nav-btn { width: 30%; }
         }
     </style>
 </head>
@@ -173,6 +179,10 @@
             <div class="folder" onclick="showGallery('fest')">
                 <div class="folder-icon">🎸</div>
                 <div class="folder-name">Фестивали</div>
+            </div>
+            <div class="folder" onclick="window.open('/portfolio', '_blank')">
+                <div class="folder-icon">📂</div>
+                <div class="folder-name">Портфолио (Диск)</div>
             </div>
         </div>
 
@@ -243,7 +253,6 @@
     </div>
 
     <script>
-        // Переменные для хранения состояния лайтбокса
         let currentLbIndex = 1;
         let currentLbPrefix = '';
         let currentLbCount = 0;
@@ -254,7 +263,6 @@
                 const src = `photos/${i}${prefix}.jpg`;
                 const img = document.createElement('img');
                 img.src = src;
-                // Теперь передаем индекс (i), а не ссылку на фото
                 img.onclick = () => openLightbox(i, prefix, count);
                 grid.appendChild(img);
             }
@@ -265,7 +273,6 @@
         createGrid('grid-f', 'f', 18);
 
         function openLightbox(index, prefix, count) {
-            // Сохраняем данные текущего просмотра
             currentLbIndex = index;
             currentLbPrefix = prefix;
             currentLbCount = count;
@@ -288,20 +295,17 @@
             }
             lb.classList.add('active');
 
-            // Прокручиваем ленту миниатюр так, чтобы активная была видна
             const activeThumb = thumbs.querySelector('.active');
             if (activeThumb) {
                 activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
             }
         }
 
-        // Функция для смены картинки вперед/назад
         function changeImage(step, event) {
-            if (event) event.stopPropagation(); // Чтобы клик не уходил на закрытие фона
+            if (event) event.stopPropagation();
             
             let newIndex = currentLbIndex + step;
             
-            // Если дошли до конца, перекидываем в начало и наоборот
             if (newIndex > currentLbCount) newIndex = 1;
             if (newIndex < 1) newIndex = currentLbCount;
             
@@ -310,14 +314,12 @@
 
         function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
         
-        // Закрытие при клике на черный фон (вне картинки)
         document.getElementById('lightbox').addEventListener('click', (e) => {
             if (e.target.id === 'lightbox') {
                 closeLightbox();
             }
         });
 
-        // Управление с клавиатуры (стрелки + Esc)
         document.addEventListener('keydown', (e) => {
             const lb = document.getElementById('lightbox');
             if (lb.classList.contains('active')) {
@@ -339,7 +341,6 @@
             document.querySelectorAll('.gallery-section').forEach(s => s.classList.remove('active'));
         }
 
-        // Логика для окна "О себе"
         const openBtn = document.getElementById('openAbout');
         const closeBtn = document.getElementById('closeAbout');
         const modal = document.getElementById('aboutModal');
