@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Портфолио | Nikita Photography</title>
+    <style>
+        :root {
+            --accent: #0088cc;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            border-color: #fff;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin: 0;
+            text-transform: uppercase;
+            font-size: 1.8rem;
+        }
+
+        /* Сетка 2х2 для четырех картинок */
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 25px;
+            width: 100%;
+            max-width: 1100px;
+        }
+
+        .portfolio-card {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            aspect-ratio: 16 / 9;
+            text-decoration: none;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 35px rgba(0, 136, 204, 0.3);
+        }
+
+        .portfolio-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease, filter 0.5s ease;
+        }
+
+        .portfolio-card:hover img {
+            transform: scale(1.05);
+            filter: brightness(0.8);
+        }
+
+        /* Затемнение и заголовок поверх картинки */
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 25px;
+            box-sizing: border-box;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin: 0 0 8px 0;
+            letter-spacing: 1px;
+        }
+
+        .card-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin: 0;
+        }
+
+        /* Адаптив под мобильные устройства */
+        @media (max-width: 768px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column-reverse;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .portfolio-card {
+                aspect-ratio: 3 / 2;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="/" class="back-btn">← На главную</a>
+        <h1>Портфолио</h1>
+    </div>
+
+    <div class="portfolio-grid">
+        <!-- Карточка 1 -->
+        <a href="https://nikitaphotography.wfolio.pro/disk/03-10-2026-aurorafest-31gs0s" target="_blank" class="portfolio-card">
+            <img src="img1.jpg" alt="Раздел 1">
+            <div class="card-overlay">
+                <h2 class="card-title">AuroraFest</h2>
+                <p class="card-subtitle">Перейти к просмотру →</p>
+            </div>
+        </a>
+
+        <!-- Карточка 2 -->
+        <a href="https://nikitaphotography.wfolio.pro/disk/03-05-2026-furrburgfest-5-0-9k784r" target="_blank" class="portfolio-card">
+            <img src="img2.jpg" alt="Раздел 2">
+            <div class="card-overlay">
+                <h2 class="card-title">ФуррБург Фест 5.0</h2>
+                <p class="card-subtitle">Перейти к просмотру →</p>
+            </div>
+        </a>
+
+        <!-- Карточка 3 -->
+        <a href="https://nikitaphotography.wfolio.pro/disk/08-11-2025-corpparty-x6m77b" target="_blank" class="portfolio-card">
+            <img src="img3.jpg" alt="Раздел 3">
+            <div class="card-overlay">
+                <h2 class="card-title">CorpParty</h2>
+                <p class="card-subtitle">Перейти к просмотру →</p>
+            </div>
+        </a>
+
+        <!-- Карточка 4 -->
+        <a href="https://nikitaphotography.wfolio.pro/disk/04-01-2026-loffest-qs3843" target="_blank" class="portfolio-card">
+            <img src="img4.jpg" alt="Раздел 4">
+            <div class="card-overlay">
+                <h2 class="card-title">LOFFEST</h2>
+                <p class="card-subtitle">Перейти к просмотру →</p>
+            </div>
+        </a>
+    </div>
+
+</body>
+</html>
