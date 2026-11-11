@@ -101,9 +101,10 @@
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95); display: none; flex-direction: column;
             justify-content: center; align-items: center; z-index: 1000;
+            touch-action: pan-y; /* Отключаем лишние жесты по горизонтали для браузера */
         }
         #lightbox.active { display: flex; }
-        #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; position: relative; z-index: 1002; }
+        #lightbox-img { max-width: 90%; max-height: 70%; object-fit: contain; border-radius: 4px; position: relative; z-index: 1002; user-select: none; }
         .close-lb { position: absolute; top: 20px; right: 30px; font-size: 40px; cursor: pointer; z-index: 1003;}
         
         /* Кнопки-зоны навигации */
@@ -141,7 +142,6 @@
         .float-btn:hover { transform: translateY(-5px); }
         .tg-btn { background: var(--accent); }
         .lomo-btn { background: #eb212e; }
-        .fest-btn { background: #ff8c00; }
 
         .float-btn::after {
             content: attr(data-tooltip); position: absolute; bottom: 65px; left: 50%;
@@ -160,16 +160,6 @@
             .nav-btn { width: 30%; }
         }
     </style>
-    
-<meta name="google-site-verification" content="PCOHQ7tRLuiyAXHtnPf6NfWpfLS7lJcCkpOBxBmev6I" />
-
-<script async src="https://www.googletagmanager.com/gtm.js?id=GTM-TNG3JGRC"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-</script>
-    
 </head>
 <body>
 
@@ -240,10 +230,10 @@
                 </div>
                 <div class="modal-text">
                     <h2>Обо мне</h2>
-                    <p> Добро пожаловать на мой сайт. 
-                    <p>Я - Никита, занимаюсь пейзажной и анималистической фотографией. Помимо этого, стараюсь запечатлеть яркие  фестивали.  </p>
-                    <p> Помимо цифровой фотографии  также увлекаюсь съёмкой  на чёрно-белую фотоплёнку с полным циклом; от выбора материала до печати в красной комнате на фотобумагу.   Снимаю на фотоаппараты разных эпох и форматов.</p>
-                    <p> Фотография для меня, в первую очередь, хобби. Здесь нет никаких платных продуктов и услуг.  </p>
+                    <p> Добро пожаловать на мой сайт. </p>
+                    <p>Я - Никита, занимаюсь пейзажной и анималистической фотографией. Помимо этого, стараюсь запечатлеть яркие фестивали. </p>
+                    <p> Помимо цифровой фотографии также увлекаюсь съёмкой на чёрно-белую фотоплёнку с полным циклом; от выбора материала до печати в красной комнате на фотобумагу. Снимаю на фотоаппараты разных эпох и форматов.</p>
+                    <p> Фотография для меня, в первую очередь, хобби. Здесь нет никаких платных продуктов и услуг. </p>
                     <p> Предлагаю вам заглянуть в мой телеграмм канал. В нём я регулярно публикую новые фотографии. Также предлагаю посетить сайт Lomography, где я публикую плёночные работы. </p>
                 </div>
             </div>
@@ -251,7 +241,6 @@
     </div>
 
     <div class="social-float-wrapper">
-    
         <a href="https://www.lomography.com/homes/macktuck706" class="float-btn lomo-btn" target="_blank" data-tooltip="Плёночные работы">
             <span>🎞️</span>
         </a>
@@ -338,6 +327,35 @@
                 else if (e.key === 'Escape') closeLightbox();
             }
         });
+
+        // --- Поддержка свайпов на телефонах ---
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        const lbElement = document.getElementById('lightbox');
+
+        lbElement.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        lbElement.addEventListener('touchend', (e) => {
+            // Игнорируем свайпы, если палец двигался по нижней ленте миниатюр
+            if (e.target.closest('#lb-thumbs')) return;
+            
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeDistance = touchEndX - touchStartX;
+            const threshold = 50; // Минимальная дистанция для срабатывания свайпа (в px)
+
+            if (swipeDistance < -threshold) {
+                changeImage(1);  // Свайп влево -> следующая картинка
+            } else if (swipeDistance > threshold) {
+                changeImage(-1); // Свайп вправо -> предыдущая картинка
+            }
+        }
 
         function showGallery(id) {
             document.getElementById('main').style.display = 'none';
